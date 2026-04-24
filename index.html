@@ -1,147 +1,180 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Engineer PRO 35.1 | Расчет системы</title>
-    <style>
-        :root { --blue:#2563eb; --red:#ef4444; --bg:#f8fafc; --text:#1e293b; --green:#059669; --slate:#64748b; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin:0; padding:15px; }
-        .container { max-width:900px; margin:auto; }
-        .module { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px; }
-        label { font-size: 11px; color: var(--slate); text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 5px; }
-        input, select { padding:10px; border-radius:8px; border:1px solid #cbd5e1; width:100%; box-sizing: border-box; font-size: 14px; background: #fdfdfd; }
-        button { padding:14px; border:none; border-radius:10px; color:#fff; font-weight:bold; cursor:pointer; transition: 0.2s; width: 100%; }
-        .btn-add { background: var(--blue); margin-bottom: 10px; }
-        .btn-calc { background: var(--green); font-size: 16px; margin-top: 10px; }
-        .room-card { border-left: 6px solid var(--blue); position: relative; }
-        .spec-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .spec-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .spec-table td:last-child { text-align: right; font-weight: bold; }
-        .pump-res { background: #ecfdf5; border: 1px solid #10b981; padding: 15px; border-radius: 10px; margin-top: 15px; }
-        @media print { .no-print { display: none; } }
-    </style>
+<meta charset="UTF-8">
+<title>Engineer PRO 25.0</title>
+<style>
+body{font-family:sans-serif;background:#eef2f7;padding:10px}
+.wrap{max-width:1100px;margin:auto}
+.box{background:#fff;padding:12px;margin-top:10px;border-radius:10px}
+input,select,button{width:100%;padding:8px;margin-top:6px}
+button{background:#2563eb;color:#fff;border:none}
+canvas{background:#fff;border:1px solid #ccc;margin-top:10px}
+.report{background:#fff;padding:20px;margin-top:10px;display:none}
+@media print{body *{visibility:hidden}.report{visibility:visible;display:block}}
+.warn{color:red;font-size:12px}
+</style>
 </head>
 <body>
-<div class="container">
-    <div class="module no-print">
-        <h2 style="margin-top:0">⚙️ ПАРАМЕТРЫ СИСТЕМЫ</h2>
-        <div class="grid">
-            <div><label>Теплоноситель</label>
-                <select id="sys_fluid">
-                    <option value="1">Вода (чистая)</option>
-                    <option value="0.85">Пропиленгликоль 30%</option>
-                </select>
-            </div>
-            <div><label>ΔT (Разность температур, °C)</label><input id="sys_dt" type="number" value="20"></div>
-            <div><label>Материал труб</label>
-                <select id="sys_tube">
-                    <option value="0.007">Пластик (PEX/PN20)</option>
-                    <option value="0.0015">Металл (Медь/Нерж)</option>
-                </select>
-            </div>
-        </div>
-    </div>
+<div class="wrap">
 
-    <div id="rooms_container" class="no-print"></div>
-    
-    <div class="no-print">
-        <button class="btn-add" onclick="addRoom()">+ ДОБАВИТЬ ПОМЕЩЕНИЕ / ВЕТКУ</button>
-        <button class="btn-calc" onclick="calculate()">ВЫПОЛНИТЬ ПОЛНЫЙ АНАЛИЗ</button>
-    </div>
+<div class="box">
+<h3>ОБЪЕКТ</h3>
+<input id="dt" value="20">
+<select id="fluid">
+<option value="1">Вода</option>
+<option value="0.85">Антифриз 30%</option>
+<option value="0.7">Антифриз 50%</option>
+</select>
+<button onclick="addRoom()">+ КОМНАТА</button>
+</div>
 
-    <div id="results_module" class="module" style="display:none">
-        <h2 style="margin-top:0">📊 РЕЗУЛЬТАТЫ РАСЧЕТА</h2>
-        <div id="out_text"></div>
-        <div class="pump-res" id="pump_out"></div>
-        
-        <h3>📋 СПЕЦИФИКАЦИЯ</h3>
-        <table class="spec-table" id="spec_table"></table>
-        
-        <button class="btn-add no-print" style="background:#475569; margin-top:20px" onclick="window.print()">СОХРАНИТЬ В PDF / ПЕЧАТЬ</button>
-    </div>
+<div id="rooms"></div>
+
+<div class="box">
+<button onclick="calc()">ПОЛНЫЙ РАСЧЁТ</button>
+<button onclick="makeReport()">ОТЧЁТ</button>
+<button onclick="window.print()">PDF</button>
+<div id="out"></div>
+</div>
+
+<canvas id="cv" width="900" height="400"></canvas>
+<div id="rep" class="report"></div>
+
 </div>
 
 <script>
-let rooms = [];
-const PUMPS = [
-    { n: "Grundfos UPS 25-40", h: 4 },
-    { n: "Grundfos UPS 25-60", h: 6 },
-    { n: "Grundfos UPS 25-80", h: 8 }
-];
+let rooms=[];
 
-function addRoom() {
-    const id = Date.now();
-    rooms.push({ id });
-    const div = document.createElement('div');
-    div.className = 'module room-card';
-    div.innerHTML = `
-        <b>ОБЪЕКТ №${rooms.length}</b>
-        <div class="grid" style="margin-top:10px">
-            <div><label>Площадь (м²)</label><input id="s_${id}" type="number" value="15"></div>
-            <div><label>Тип стен</label>
-                <select id="wall_${id}">
-<option value="0.7">Утеплен</option>
-                    <option value="1.0" selected>Стандарт</option>
-                    <option value="1.4">Холодный (кирпич)</option>
-                </select>
-            </div>
-            <div><label>Длина магистрали (м)</label><input id="l_${id}" type="number" value="15"></div>
-        </div>`;
-    document.getElementById('rooms_container').appendChild(div);
+function addRoom(){
+let id=Date.now();
+rooms.push({id});
+render();
 }
 
-function calculate() {
-    if(rooms.length === 0) return alert("Добавьте хотя бы одно помещение");
-    
-    const dt = +document.getElementById('sys_dt').value;
-    const fC = +document.getElementById('sys_fluid').value;
-    const cp = 4.187 * fC; // Теплоемкость
-    
-    let totalHeat = 0;
-    let totalPipe = 0;
-    let maxResistance = 0;
+function render(){
+let h='';
+rooms.forEach((r,i)=>{
+h+=`
+<div class="box">
+<b>Комната ${i+1}</b>
+<input id="s_${r.id}" value="20" placeholder="м²">
+<input id="l_${r.id}" value="15" placeholder="длина трубы">
+<select id="rad_${r.id}">
+<option value="180">Алюм 180Вт</option>
+<option value="120">Сталь 120Вт</option>
+</select>
+</div>
+`;
+});
+roomsDiv.innerHTML=h;
+}
 
-    rooms.forEach(r => {
-        const s = +document.getElementById(`s_${r.id}`).value;
-        const k = +document.getElementById(`wall_${r.id}`).value;
-        const len = +document.getElementById(`l_${r.id}`).value;
-        
-        const heat = s * 100 * k;
-        totalHeat += heat;
-        totalPipe += len * 2; // Туда-обратно
-        
-        // Грубый расчет сопротивления (Па)
-        const flow = (heat / (cp * dt)) / 1000; 
-        const res = len * 2 * 250; // 250 Па/м среднее
-        if(res > maxResistance) maxResistance = res;
-    });
+const D=[0.013,0.016,0.020,0.025,0.032];
 
-    const totalFlow = (totalHeat / (cp * dt)) / 1000 * 3600; // м3/ч
-    const headRequired = (maxResistance * 1.3) / 10000; // в метры водяного столба
+let results=[];
+let maxH=0;
 
-    // Подбор насоса
-    let bestPump = PUMPS.find(p => p.h >= headRequired) || PUMPS[2];
+function calc(){
 
-    document.getElementById('results_module').style.display = 'block';
-    document.getElementById('out_text').innerHTML = `
-        <div style="font-size: 18px; margin-bottom: 10px;">
-            <b>Суммарная тепловая нагрузка:</b> ${(totalHeat/1000).toFixed(2)} кВт<br>
-            <b>Общий расход теплоносителя:</b> ${totalFlow.toFixed(3)} м³/ч
-        </div>`;
-    
-    document.getElementById('pump_out').innerHTML = `
-        <b>РЕКОМЕНДУЕМЫЙ НАСОС:</b> ${bestPump.n}<br>
-        <small>Требуемый напор: ${headRequired.toFixed(2)} м.в.с. при макс. ветке.</small>`;
+results=[];
+maxH=0;
 
-    document.getElementById('spec_table').innerHTML = `
-        <tr><td>Труба магистральная (ориентир)</td><td>${totalPipe} м.п.</td></tr>
-        <tr><td>Радиаторы (секций 500мм)</td><td>~${Math.ceil(totalHeat/180)} шт.</td></tr>
-        <tr><td>Объем системы (примерный)</td><td>~${(totalPipe * 0.15 + totalHeat/100).toFixed(1)} л.</td></tr>
-    `;
-    
-    window.scrollTo(0, document.getElementById('results_module').offsetTop);
+let fluid=+fluid.value;
+let cp=4.187*fluid;
+let nu=0.0000006/fluid;
+
+rooms.forEach((r,i)=>{
+
+let S=+document.getElementById("s_"+r.id).value;
+let len=+document.getElementById("l_"+r.id).value;
+let rad=+document.getElementById("rad_"+r.id).value;
+
+let heat=S*100;
+let sections=Math.ceil(heat/rad);
+let Q=heat/(1000*cp*dt.value);
+
+let best=null;
+
+D.forEach(d=>{
+let v=(Q)/(Math.PI*d*d/4);
+let Re=v*d/nu;
+let lambda=0.11*Math.pow((0.000007/d+68/Re),0.25);
+let h=lambda*(len/d)*(v*v/19.62);
+if(v>0.3&&v<1.2){if(!best||h<best.h){best={d,v,h,Q,sections,len,heat}}}
+});
+
+if(!best){best={d:0.02,v:0.7,h:1,Q,sections,len,heat}}
+
+maxH=Math.max(maxH,best.h);
+results.push(best);
+
+});
+
+let pump=[{n:"25-40",h:4},{n:"25-60",h:6},{n:"25-80",h:8}]
+.find(p=>p.h>=maxH*1.25)||{n:">8м"};
+
+let txt="";
+results.forEach((r,i)=>{
+let dH=maxH-r.h;
+let Kv=(r.Q*3.6)/Math.sqrt(dH||0.1);
+
+let warn="";
+if(r.v>1.5)warn+="⚠️ шум ";
+if(r.v<0.2)warn+="⚠️ воздух ";
+
+txt+=`Комната ${i+1}: d ${(r.d*1000).toFixed(0)}мм | v ${r.v.toFixed(2)} | h ${r.h.toFixed(2)} | Kv ${Kv.toFixed(2)} ${warn}<br>`;
+});
+
+out.innerHTML=txt+"<b>Насос: "+pump.n+"</b>";
+
+draw();
+}
+
+function draw(){
+let c=cv.getContext("2d");
+c.clearRect(0,0,900,400);
+
+results.forEach((r,i)=>{
+let x=50;
+let y=50+i*60;
+let len=r.h*60;
+
+c.beginPath();
+c.moveTo(x,y);
+c.lineTo(x+len,y);
+c.stroke();
+
+c.fillText("К"+(i+1),x-30,y+5);
+});
+}
+
+function makeReport(){
+
+let txt="<h2>ИНЖЕНЕРНЫЙ ОТЧЁТ</h2>";
+let totalPipe=0,totalRad=0;
+
+results.forEach((r,i)=>{
+totalPipe+=r.len;
+totalRad+=r.sections;
+
+txt+=`
+<b>Комната ${i+1}</b><br>
+Мощность ${(r.heat/1000).toFixed(2)} кВт<br>
+Радиаторы: ${r.sections} секций<br>
+Диаметр ${(r.d*1000).toFixed(0)} мм<br><br>
+`;
+});
+
+txt+=`
+<hr>
+<b>СПЕЦИФИКАЦИЯ</b><br>
+Труба: ${totalPipe} м<br>
+Радиаторы: ${totalRad} секций<br>
+`;
+
+rep.innerHTML=txt;
+rep.style.display="block";
 }
 
 addRoom();
