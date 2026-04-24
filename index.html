@@ -2,212 +2,149 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Engineer ULTIMATE 35.1 | PRO Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer PRO 35.1 | Расчет системы</title>
     <style>
-        :root { --blue:#2563eb; --red:#ef4444; --bg:#f1f5f9; --text:#1e293b; --green:#059669; --slate:#64748b; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin:0; padding:10px; line-height: 1.4; }
-        .container { max-width:650px; margin:auto; }
-        .module { background:#fff; padding:18px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 15px; }
-        h2 { font-size: 18px; margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        :root { --blue:#2563eb; --red:#ef4444; --bg:#f8fafc; --text:#1e293b; --green:#059669; --slate:#64748b; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin:0; padding:15px; }
+        .container { max-width:900px; margin:auto; }
+        .module { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px; }
+        label { font-size: 11px; color: var(--slate); text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 5px; }
+        input, select { padding:10px; border-radius:8px; border:1px solid #cbd5e1; width:100%; box-sizing: border-box; font-size: 14px; background: #fdfdfd; }
+        button { padding:14px; border:none; border-radius:10px; color:#fff; font-weight:bold; cursor:pointer; transition: 0.2s; width: 100%; }
+        .btn-add { background: var(--blue); margin-bottom: 10px; }
+        .btn-calc { background: var(--green); font-size: 16px; margin-top: 10px; }
         .room-card { border-left: 6px solid var(--blue); position: relative; }
-        .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-        .full { grid-column: span 2; }
-        label { font-size: 11px; color: var(--slate); text-transform: uppercase; font-weight: 800; margin-bottom: 4px; display: block; }
-        input, select { padding:12px; border-radius:10px; border:1px solid #cbd5e1; width:100%; box-sizing: border-box; font-size: 15px; background: #f8fafc; color: var(--text); }
-        button { padding:16px; border:none; border-radius:14px; color:#fff; font-weight:bold; cursor:pointer; font-size: 15px; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .btn-add { background: var(--blue); width: 100%; margin-bottom: 10px; }
-        .btn-calc { background: var(--green); width: 100%; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-del { background: #cbd5e1; color: #475569; padding: 6px 12px; font-size: 11px; position: absolute; right: 15px; top: 15px; border-radius: 8px; width: auto; }
-        canvas { background:#fff; border-radius:12px; width: 100%; margin: 15px 0; border: 1px solid #e2e8f0; }
-        .res-item { background: #f8fafc; padding: 14px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; font-size: 14px; }
-        .spec-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        .spec-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
+        .spec-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .spec-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         .spec-table td:last-child { text-align: right; font-weight: bold; }
-        .pump-card { background: #ecfdf5; border: 1px solid #10b981; padding: 15px; border-radius: 15px; margin-top: 15px; }
-        @media print { .no-print { display: none; } .module { box-shadow: none; border: 1px solid #eee; } }
+        .pump-res { background: #ecfdf5; border: 1px solid #10b981; padding: 15px; border-radius: 10px; margin-top: 15px; }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="module no-print">
-        <h2>⚙️ СИСТЕМА И ТЕПЛОНОСИТЕЛЬ</h2>
+        <h2 style="margin-top:0">⚙️ ПАРАМЕТРЫ СИСТЕМЫ</h2>
         <div class="grid">
-            <div class="full">
-                <label>Тип теплоносителя</label>
-                <select id="sys_fluid" onchange="saveAll()">
+            <div><label>Теплоноситель</label>
+                <select id="sys_fluid">
                     <option value="1">Вода (чистая)</option>
-                    <option value="0.85">Пропиленгликоль 30% (вязкий)</option>
-                    <option value="0.75">Пропиленгликоль 50% (очень вязкий)</option>
+                    <option value="0.85">Пропиленгликоль 30%</option>
                 </select>
             </div>
-            <div><label>ΔT (°C)</label><input id="sys_dt" type="number" value="20" onchange="saveAll()"></div>
+            <div><label>ΔT (Разность температур, °C)</label><input id="sys_dt" type="number" value="20"></div>
             <div><label>Материал труб</label>
-                <select id="sys_tube" onchange="saveAll()">
+                <select id="sys_tube">
                     <option value="0.007">Пластик (PEX/PN20)</option>
                     <option value="0.0015">Металл (Медь/Нерж)</option>
-                    <option value="0.045">Сталь старая</option>
                 </select>
             </div>
         </div>
     </div>
+
     <div id="rooms_container" class="no-print"></div>
-    <button class="btn-add no-print" onclick="addRoom()">+ ДОБАВИТЬ ПОМЕЩЕНИЕ</button>
-    <button class="btn-calc no-print" onclick="calculateSystem()">ВЫПОЛНИТЬ АНАЛИЗ</button>
+    
+    <div class="no-print">
+        <button class="btn-add" onclick="addRoom()">+ ДОБАВИТЬ ПОМЕЩЕНИЕ / ВЕТКУ</button>
+        <button class="btn-calc" onclick="calculate()">ВЫПОЛНИТЬ ПОЛНЫЙ АНАЛИЗ</button>
+    </div>
+
     <div id="results_module" class="module" style="display:none">
-        <h2>📊 ГИДРАВЛИЧЕСКИЙ БАЛАНС</h2>
-<canvas id="chartCv" width="400" height="150"></canvas>
+        <h2 style="margin-top:0">📊 РЕЗУЛЬТАТЫ РАСЧЕТА</h2>
         <div id="out_text"></div>
-        <div id="spec_module">
-            <h2 style="margin-top:20px">📋 СПЕЦИФИКАЦИЯ</h2>
-            <table class="spec-table" id="spec_table"></table>
-        </div>
-        <button class="btn-add" style="background:#25d366; margin-top:20px" onclick="window.print()">ПЕЧАТЬ В PDF</button>
+        <div class="pump-res" id="pump_out"></div>
+        
+        <h3>📋 СПЕЦИФИКАЦИЯ</h3>
+        <table class="spec-table" id="spec_table"></table>
+        
+        <button class="btn-add no-print" style="background:#475569; margin-top:20px" onclick="window.print()">СОХРАНИТЬ В PDF / ПЕЧАТЬ</button>
     </div>
 </div>
 
 <script>
-const D_STEPS = [0.012, 0.016, 0.020, 0.026, 0.032, 0.040];
+let rooms = [];
 const PUMPS = [
-    { n: "Grundfos UPS 25-40 / Valtec 25/4", h: 4 },
-    { n: "Grundfos UPS 25-60 / Valtec 25/6", h: 6 },
-    { n: "Grundfos UPS 25-80 / Valtec 25/8", h: 8 }
+    { n: "Grundfos UPS 25-40", h: 4 },
+    { n: "Grundfos UPS 25-60", h: 6 },
+    { n: "Grundfos UPS 25-80", h: 8 }
 ];
 
-let rooms = JSON.parse(localStorage.getItem('hvac_v35_rooms')) || [];
-
 function addRoom() {
-    rooms.push({ id: Date.now(), s: 15, len: 10, radType: 180, wallK: 1.0 });
-    render();
-}
-
-function deleteRoom(id) {
-    rooms = rooms.filter(r => r.id !== id);
-    saveAll();
-    render();
-}
-
-function saveAll() {
-    rooms.forEach(r => {
-        const sEl = document.getElementById(`s_${r.id}`);
-        if(sEl) {
-            r.s = +sEl.value;
-            r.len = +document.getElementById(`len_${r.id}`).value;
-            r.radType = +document.getElementById(`rad_${r.id}`).value;
-            r.wallK = +document.getElementById(`wall_${r.id}`).value;
-        }
-    });
-    localStorage.setItem('hvac_v35_rooms', JSON.stringify(rooms));
-    localStorage.setItem('hvac_v35_dt', document.getElementById('sys_dt').value);
-    localStorage.setItem('hvac_v35_fluid', document.getElementById('sys_fluid').value);
-    localStorage.setItem('hvac_v35_tube', document.getElementById('sys_tube').value);
-}
-
-function render() {
-    let html = '';
-    rooms.forEach((r, i) => {
-        html += `
-        <div class="module room-card">
-            <button class="btn-del" onclick="deleteRoom(${r.id})">Удалить</button>
-            <b>ПОМЕЩЕНИЕ №${i+1}</b>
-            <div class="grid" style="margin-top:12px">
-                <div><label>Площадь (м²)</label><input id="s_${r.id}" type="number" value="${r.s}" onchange="saveAll()"></div>
-                <div><label>Тип стен</label>
-                    <select id="wall_${r.id}" onchange="saveAll()">
-                        <option value="0.7" ${r.wallK==0.7?'selected':''}>Утепленный</option>
-                        <option value="1.0" ${r.wallK==1.0?'selected':''}>Стандарт</option>
-                        <option value="1.4" ${r.wallK==1.4?'selected':''}>Холодный</option>
-                    </select>
-                </div>
-                <div><label>Длина ветки Lx2 (м)</label><input id="len_${r.id}" type="number" value="${r.len}" onchange="saveAll()"></div>
-                <div><label>Радиатор</label>
-                    <select id="rad_${r.id}" onchange="saveAll()">
-                        <option value="180" ${r.radType==180?'selected':''}>Алюминий (180Вт)</option>
-                        <option value="120" ${r.radType==120?'selected':''}>Сталь (120Вт)</option>
-                        <option value="80" ${r.radType==80?'selected':''}>Чугун (80Вт)</option>
-                    </select>
-                </div>
+    const id = Date.now();
+    rooms.push({ id });
+    const div = document.createElement('div');
+    div.className = 'module room-card';
+    div.innerHTML = `
+        <b>ОБЪЕКТ №${rooms.length}</b>
+        <div class="grid" style="margin-top:10px">
+            <div><label>Площадь (м²)</label><input id="s_${id}" type="number" value="15"></div>
+            <div><label>Тип стен</label>
+                <select id="wall_${id}">
+<option value="0.7">Утеплен</option>
+                    <option value="1.0" selected>Стандарт</option>
+                    <option value="1.4">Холодный (кирпич)</option>
+                </select>
             </div>
+            <div><label>Длина магистрали (м)</label><input id="l_${id}" type="number" value="15"></div>
         </div>`;
-    });
-    document.getElementById('rooms_container').innerHTML = html;
+    document.getElementById('rooms_container').appendChild(div);
 }
 
-function calculateSystem() {
-    saveAll();
-    if(rooms.length === 0) return;
+function calculate() {
+    if(rooms.length === 0) return alert("Добавьте хотя бы одно помещение");
+    
     const dt = +document.getElementById('sys_dt').value;
-    const fC = +document.getElementById('sys_fluid').value; 
-    const kTube = +document.getElementById('sys_tube').value;
-    const cp = 4.187 * fC;
-    const density = fC < 1 ? 1045 : 1000;
-    const viscosity = fC < 1 ? 0.0000030 : 0.00000065;
-
-    let results = [], totals = { pipe: 0, rads: 0, vol: 0 };
+    const fC = +document.getElementById('sys_fluid').value;
+    const cp = 4.187 * fC; // Теплоемкость
+    
+    let totalHeat = 0;
+    let totalPipe = 0;
+    let maxResistance = 0;
 
     rooms.forEach(r => {
-        const heat = r.s * 100 * r.wallK;
-        const volFlow = (heat / (cp * dt)) / density;
-        let best = null;
-
-        for (let d of D_STEPS) {
-            const v = volFlow / (Math.PI * d * d / 4);
-            if (v >= 0.18 && v <= 0.75) {
-                const re = v * d / viscosity;
-                const lambda = 0.11 * Math.pow((kTube/d + 68/re), 0.25);
-const h = (lambda * (r.len / d) * (v * v / 19.62)) * 1.3;
-                best = { d, v, h, heat, volFlow };
-                break;
-            }
-        }
-        if(!best) best = { d: 0.016, v: 0.8, h: 2.0, heat, volFlow };
-        const sections = Math.ceil(heat / r.radType);
-        results.push({ ...best, sections, len: r.len });
-        totals.pipe += r.len; totals.rads += sections;
-        totals.vol += ((Math.PI * best.d**2 / 4) * r.len * 1000) + (sections * 0.5);
+        const s = +document.getElementById(`s_${r.id}`).value;
+        const k = +document.getElementById(`wall_${r.id}`).value;
+        const len = +document.getElementById(`l_${r.id}`).value;
+        
+        const heat = s * 100 * k;
+        totalHeat += heat;
+        totalPipe += len * 2; // Туда-обратно
+        
+        // Грубый расчет сопротивления (Па)
+        const flow = (heat / (cp * dt)) / 1000; 
+        const res = len * 2 * 250; // 250 Па/м среднее
+        if(res > maxResistance) maxResistance = res;
     });
 
-    renderOutput(results, totals);
-}
+    const totalFlow = (totalHeat / (cp * dt)) / 1000 * 3600; // м3/ч
+    const headRequired = (maxResistance * 1.3) / 10000; // в метры водяного столба
 
-function renderOutput(results, totals) {
-    const maxH = Math.max(...results.map(r => r.h));
-    let html = '';
-    results.forEach((r, i) => {
-        const dH = maxH - r.h;
-        const kv = (r.volFlow * 3600) / Math.sqrt((dH) || 0.01);
-        html += <div class="res-item"><b>№${i+1}</b> | Труба ${(r.d*1000).toFixed(0)}мм | Радиатор: ${r.sections} секц. | <span style="color:var(--blue); font-weight:bold">Kv: ${kv.toFixed(2)}</span></div>;
-    });
-    const reqH = maxH * 1.25;
-    const pump = PUMPS.find(p => p.h >= reqH) || { n: "Требуется мощный насос", h: maxH };
-    html += <div class="pump-card"><label>Рекомендуемый Насос:</label><b>${pump.n}</b><br><small>Требуемый напор системы: ${reqH.toFixed(2)} м.</small></div>;
-    document.getElementById('out_text').innerHTML = html;
-    document.getElementById('spec_table').innerHTML = <tr><td>Общая длина труб</td><td>${totals.pipe} м</td></tr><tr><td>Всего секций</td><td>${totals.rads} шт</td></tr><tr><td>Объем теплоносителя</td><td>${totals.vol.toFixed(1)} л</td></tr>;
+    // Подбор насоса
+    let bestPump = PUMPS.find(p => p.h >= headRequired) || PUMPS[2];
+
     document.getElementById('results_module').style.display = 'block';
-    drawChart(results, maxH);
+    document.getElementById('out_text').innerHTML = `
+        <div style="font-size: 18px; margin-bottom: 10px;">
+            <b>Суммарная тепловая нагрузка:</b> ${(totalHeat/1000).toFixed(2)} кВт<br>
+            <b>Общий расход теплоносителя:</b> ${totalFlow.toFixed(3)} м³/ч
+        </div>`;
+    
+    document.getElementById('pump_out').innerHTML = `
+        <b>РЕКОМЕНДУЕМЫЙ НАСОС:</b> ${bestPump.n}<br>
+        <small>Требуемый напор: ${headRequired.toFixed(2)} м.в.с. при макс. ветке.</small>`;
+
+    document.getElementById('spec_table').innerHTML = `
+        <tr><td>Труба магистральная (ориентир)</td><td>${totalPipe} м.п.</td></tr>
+        <tr><td>Радиаторы (секций 500мм)</td><td>~${Math.ceil(totalHeat/180)} шт.</td></tr>
+        <tr><td>Объем системы (примерный)</td><td>~${(totalPipe * 0.15 + totalHeat/100).toFixed(1)} л.</td></tr>
+    `;
+    
+    window.scrollTo(0, document.getElementById('results_module').offsetTop);
 }
 
-function drawChart(results, maxH) {
-    const canvas = document.getElementById('chartCv');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,400,150);
-    results.forEach((r, i) => {
-        ctx.fillStyle = "#e2e8f0"; ctx.fillRect(70, 20 + i*22, 300, 12);
-        ctx.fillStyle = "#2563eb"; 
-        const barWidth = (r.h / (maxH || 1)) * 300;
-        ctx.fillRect(70, 20 + i*22, barWidth, 12);
-        ctx.fillStyle = "#64748b"; ctx.font = "10px sans-serif";
-        ctx.fillText("Пом "+(i+1), 10, 30 + i*22);
-    });
-}
-
-window.onload = () => {
-    if(localStorage.getItem('hvac_v35_dt')) document.getElementById('sys_dt').value = localStorage.getItem('hvac_v35_dt');
-    if(localStorage.getItem('hvac_v35_fluid')) document.getElementById('sys_fluid').value = localStorage.getItem('hvac_v35_fluid');
-    if(localStorage.getItem('hvac_v35_tube')) document.getElementById('sys_tube').value = localStorage.getItem('hvac_v35_tube');
-    render();
-};
+addRoom();
 </script>
 </body>
 </html>
