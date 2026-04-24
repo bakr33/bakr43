@@ -2,313 +2,117 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#2563eb">
-    <title>Engineer ULTIMATE 10.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer PRO 35.5 | ГИДРАВЛИКА & ПОЛ</title>
     <style>
-        :root { --blue:#2563eb; --orange:#f59e0b; --red:#ef4444; --bg:#f1f5f9; --text:#1e293b; --green:#16a34a; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin:0; padding:10px; overflow-x: hidden; }
-        .container { max-width:500px; margin:auto; }
-        .tabs { display: flex; gap: 5px; margin-bottom: 12px; background: #e2e8f0; padding: 5px; border-radius: 14px; position: sticky; top: 5px; z-index: 100; }
-        .tab { flex: 1; padding: 10px 2px; text-align: center; cursor: pointer; border-radius: 10px; font-size: 12px; font-weight: bold; border: none; background: none; color: #64748b; }
-        .tab.active { background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: var(--blue); }
-        .content { display: none; }
-        .content.active { display: block; }
-        .module { background:#fff; padding:15px; border-radius:18px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 12px; }
-        h2 { font-size:16px; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; }
-        .grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-        .full { grid-column: span 2; }
-        label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 800; margin-bottom: 3px; display: block; }
-        input, select { padding:10px; border-radius:8px; border:1px solid #cbd5e1; width:100%; box-sizing: border-box; font-size: 14px; background: #f8fafc; }
-        button { width: 100%; padding:14px; border:none; border-radius:12px; color:#fff; font-weight:bold; margin-top:8px; cursor:pointer; font-size: 14px; }
-        .btn-blue{background:var(--blue);} .btn-orange{background:var(--orange);} .btn-red{background:var(--red);}
-        .btn-wa { background:#25d366; margin-top:10px; display:none; color: white; }
-        .result { margin-top:12px; padding:12px; border-radius:12px; background:#f8fafc; border: 1px solid #e2e8f0; font-size: 13px; line-height: 1.5; display: none; }
-        .res-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #cbd5e1; padding: 3px 0; }
-        .res-val { font-weight: bold; }
-        hr { border: 0; border-top: 1px solid #e2e8f0; margin: 10px 0; }
-        .save-status { font-size: 9px; text-align: center; color: #94a3b8; margin-top: -5px; margin-bottom: 10px; }
-        .small-note { font-size: 10px; color: #64748b; margin-top: 5px; }
+        :root { --blue:#2563eb; --red:#ef4444; --bg:#f1f5f9; --text:#1e293b; --green:#10b981; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+        .nav { display: flex; justify-content: center; gap: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nav-btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; background: #e2e8f0; color: #64748b; }
+        .nav-btn.active { background: var(--blue); color: #fff; }
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        .card { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        label { font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        input, select { padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; width: 100%; box-sizing: border-box; font-size: 15px; }
+        .btn-main { background: var(--blue); color: #fff; padding: 15px; border: none; border-radius: 12px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        .res-block { background: #f8fafc; border-left: 5px solid var(--blue); padding: 15px; margin-top: 20px; border-radius: 8px; }
+        .warn { color: var(--red); font-weight: bold; font-size: 13px; margin-top: 5px; }
     </style>
 </head>
 <body>
 
+<div class="nav">
+    <button class="nav-btn active" onclick="showTab('hydro')">💧 ГИДРАВЛИКА</button>
+    <button class="nav-btn" onclick="showTab('floor')">🌀 ТЕПЛЫЙ ПОЛ</button>
+    <button class="nav-btn" onclick="showTab('heat')">🔥 ТЕПЛО</button>
+</div>
+
 <div class="container">
-    <div class="tabs">
-        <button class="tab active" onclick="openTab(event, 'gidro')">💧 ГИДРАВЛИКА</button>
-        <button class="tab" onclick="openTab(event, 'floor')">🔥 ПОЛ</button>
-        <button class="tab" onclick="openTab(event, 'heat')">🏠 ТЕПЛО</button>
-    </div>
-    <div class="save-status" id="status">Данные сохраняются автоматически</div>
-
-    <!-- ГИДРАВЛИКА -->
-    <div id="gidro" class="content active">
-        <div class="module">
-            <h2>Участок магистрали</h2>
-            <div class="grid">
-                <div class="full"><label>Теплоноситель</label><select id="g_fluid" class="save"><option value="1">Вода</option><option value="0.85">Антифриз 30%</option><option value="0.75">Антифриз 50%</option></select></div>
-                <div class="full"><label>Труба</label><select id="g_type" class="save" onchange="updateSizes()"></select></div>
-                <div class="full"><label>Размер</label><select id="g_size" class="save"></select></div>
-                <div><label>Мощность (кВт)</label><input id="g_pow" class="save" type="number" value="10" min="0.1" step="0.1"></div>
-                <div><label>ΔT (°C)</label><input id="g_dt" class="save" type="number" value="20" min="1" step="1"></div>
-<div><label>Длина (м)</label><input id="g_len" class="save" type="number" value="15" min="0.1"></div>
-                <div><label>Углы 90° (шт)</label><input id="g_turns" class="save" type="number" value="4" min="0"></div>
+    <!-- ВКЛАДКА ГИДРАВЛИКА -->
+    <div id="tab_hydro" class="card">
+        <h3>Расчет участка магистрали</h3>
+        <div class="grid">
+            <div><label>Труба</label>
+                <select id="h_pipe">
+                    <option value="12">PEX 16 (внутр. 12мм)</option>
+                    <option value="16">PEX 20 (внутр. 16мм)</option>
+                    <option value="20">PPR 25 (внутр. 20.4мм)</option>
+                    <option value="26">PPR 32 (внутр. 26мм)</option>
+                </select>
             </div>
-            <button class="btn-blue" onclick="calcGidro()">АНАЛИЗ УЧАСТКА</button>
-            <div id="res_g" class="result"></div>
-            <button id="wa_g" class="btn-wa" onclick="sendWA('g')">📲 Отправить расчет в WhatsApp</button>
+            <div><label>Мощность (кВт)</label><input id="h_pow" type="number" value="5"></div>
+            <div><label>ΔT (°C)</label><input id="h_dt" type="number" value="20"></div>
+            <div><label>Длина участка (м)</label><input id="h_len" type="number" value="10"></div>
         </div>
+        <button class="btn-main" onclick="calcHydro()">АНАЛИЗ УЧАСТКА</button>
+        <div id="res_hydro" class="res-block" style="display:none"></div>
     </div>
 
-    <!-- ПОЛ -->
-    <div id="floor" class="content">
-        <div class="module">
-            <h2>Тёплый пол</h2>
-            <div class="grid">
-                <div><label>S площади (м²)</label><input id="f_area" class="save" type="number" value="50" min="1"></div>
-                <div><label>Шаг (м)</label><select id="f_step" class="save"><option value="0.1">10 см</option><option value="0.15" selected>15 см</option><option value="0.2">20 см</option></select></div>
-                <div class="full"><label>Цена трубы (₽/м)</label><input id="f_price" class="save" type="number" value="95" min="0"></div>
+    <!-- ВКЛАДКА ТЕПЛЫЙ ПОЛ -->
+    <div id="tab_floor" class="card" style="display:none">
+        <h3>Параметры контура ТП</h3>
+        <div class="grid">
+            <div><label>Площадь (м²)</label><input id="f_s" type="number" value="15"></div>
+            <div><label>Шаг укладки (мм)</label>
+                <select id="f_step">
+                    <option value="100">100 мм</option>
+                    <option value="150" selected>150 мм</option>
+                    <option value="200">200 мм</option>
+                </select>
             </div>
-            <button class="btn-orange" onclick="calcFloor()">СЧИТАТЬ</button>
-            <div id="res_f" class="result"></div>
-            <button id="wa_f" class="btn-wa" onclick="sendWA('f')">📲 Отправить спецификацию</button>
         </div>
-    </div>
-
-    <!-- ТЕПЛО -->
-    <div id="heat" class="content">
-        <div class="module">
-            <h2>Теплопотери и Бак</h2>
-            <div class="grid">
-                <div class="full"><label>Город</label><select id="l_city" class="save"><option value="-28">Москва (-28°C)</option><option value="-15">Краснодар (-15°C)</option><option value="-35">Сибирь (-35°C)</option></select></div>
-                <div class="full"><label>S дома (м²)</label><input id="l_s" class="save" type="number" value="100" min="10"></div>
-            </div>
-            <button class="btn-red" onclick="calcHeat()">ПОЛНЫЙ РАСЧЕТ</button>
-            <div id="res_h" class="result"></div>
-            <button id="wa_h" class="btn-wa" onclick="sendWA('h')">📲 Отправить теплорасчет</button>
-            <div class="small-note">Расчёт приблизительный (100 Вт/м², корректировка по климату)</div>
-        </div>
+        <button class="btn-main" onclick="calcFloor()">РАСЧИТАТЬ ПЕТЛЮ</button>
+        <div id="res_floor" class="res-block" style="display:none"></div>
     </div>
 </div>
 
 <script>
-    (function() {
-        // ---------- ДАННЫЕ ----------
-        const DATA = {
-            tubes: {
-                ppr: { n: "ППР", k: 0.007, s: [[20,3.4],[25,4.2],[32,5.4],[40,6.7]] },
-                pex: { n: "PEX", k: 0.007, s: [[16,2.0],[20,2.8],[25,3.5],[32,4.4]] },
-                mlt: { n: "МЛП", k: 0.007, s: [[16,2.0],[20,2.0],[26,3.0]] },
-                inox: { n: "Нерж", k: 0.0015, s: [[15,1.0],[18,1.0],[22,1.2],[28,1.2]] }
-            },
-            pumps: [{ n: "25-40 / 25/4", h: 4 }, { n: "25-60 / 25/6", h: 6 }, { n: "25-80 / 25/8", h: 8 }]
-        };
+function showTab(tab) {
+    document.getElementById('tab_hydro').style.display = tab === 'hydro' ? 'block' : 'none';
+    document.getElementById('tab_floor').style.display = tab === 'floor' ? 'block' : 'none';
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.
+remove('active'));
+    event.currentTarget.classList.add('active');
+}
 
-        // Храним последние отчёты для каждой вкладки
-        const reports = { g: '', f: '', h: '' };
+function calcHydro() {
+    const d = +document.getElementById('h_pipe').value / 1000;
+    const p = +document.getElementById('h_pow').value * 1000;
+    const dt = +document.getElementById('h_dt').value;
+    const len = +document.getElementById('h_len').value;
 
-        // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
-        window.openTab = function(e, n) {
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(n).classList.add('active');
-            e.currentTarget.classList.add('active');
-        };
+    const flow = p / (1.163 * dt); // л/ч
+    const flowM3 = flow / 1000; // м3/ч
+    const velocity = (flowM3 / 3600) / (Math.PI * Math.pow(d, 2) / 4);
+    
+    // Потери давления (упрощенно Па)
+    const resistance = (0.02 * (len/d) * (Math.pow(velocity, 2) * 1000 / 2)).toFixed(0);
 
-        // Обновление выпадающего списка размеров
-        window.updateSizes = function() {
-            const type = document.getElementById('g_type').value;
-            const sel = document.getElementById('g_size');
-            const oldVal = sel.value;
-            sel.innerHTML = '';
-            DATA.tubes[type].s.forEach(sz => {
-                const inner = (sz[0] - sz[1]*2).toFixed(1);
-                sel.add(new Option(`${sz[0]}x${sz[1]} (вн. ${inner} мм)`, inner));
-            });
-            // Восстановить сохранённое значение, если есть
-            const saved = localStorage.getItem('g_size');
-            if (saved && [...sel.options].some(o => o.
-value === saved)) sel.value = saved;
-            else if (oldVal && [...sel.options].some(o => o.value === oldVal)) sel.value = oldVal;
-        };
+    let html = `<b>Расход:</b> ${flow.toFixed(1)} л/ч<br>
+                <b>Скорость:</b> ${velocity.toFixed(2)} м/с<br>
+                <b>Потери давления:</b> ${(resistance/1000).toFixed(2)} кПа`;
+    
+    if(velocity > 0.7) html += <div class="warn">⚠️ Слишком высокая скорость! Увеличьте диаметр.</div>;
+    if(velocity < 0.2) html += <div class="warn">⚠️ Застой (воздух не выйдет). Уменьшите диаметр.</div>;
 
-        // ---------- РАСЧЁТ ГИДРАВЛИКИ ----------
-        window.calcGidro = function() {
-            const fC = parseFloat(document.getElementById('g_fluid').value);
-            const pow = parseFloat(document.getElementById('g_pow').value);
-            const dt = parseFloat(document.getElementById('g_dt').value);
-            const len = parseFloat(document.getElementById('g_len').value);
-            const d_mm = parseFloat(document.getElementById('g_size').value);
-            const turns = parseFloat(document.getElementById('g_turns').value);
-            const type = document.getElementById('g_type').value;
-            const k = DATA.tubes[type].k;
+    document.getElementById('res_hydro').innerHTML = html;
+    document.getElementById('res_hydro').style.display = 'block';
+}
 
-            // Проверки
-            if (!pow  pow <= 0  !dt  dt <= 0  !len  len <= 0  !d_mm) {
-                alert('Проверьте заполнение полей: мощность, ΔT, длина и размер трубы должны быть > 0');
-                return;
-            }
+function calcFloor() {
+    const s = +document.getElementById('f_s').value;
+    const step = +document.getElementById('f_step').value / 1000;
+    const pipeLen = (s / step) * 1.1; // +10% на повороты и подводку
 
-            const q_ls = pow / (4.187 * fC * dt); // л/с
-            const d = d_mm / 1000;
-            const v = (q_ls / 1000) / (Math.PI * d * d / 4);
-            
-            // Потери напора с учётом шероховатости k
-            const lambda = k / Math.pow(d, 1.3); // упрощённая зависимость
-            const h_linear = lambda * (len / d) * (v * v / 19.62);
-            const h_local = turns * 1.5 * (v * v / 19.62);
-            const h_total = h_linear + h_local;
+    let html = `<b>Длина трубы:</b> ${pipeLen.toFixed(1)} м.п.<br>
+                <b>Объем воды:</b> ${(pipeLen * 0.113).toFixed(1)} л (для 16-й трубы)`;
+    
+    if(pipeLen > 100) html += <div class="warn">⚠️ Петля больше 100м! Разделите на два контура.</div>;
 
-            const pump = DATA.pumps.find(p => p.h >= h_total * 1.25) || { n: "Мощный (>8м)" };
-
-            const resDiv = document.getElementById('res_g');
-            resDiv.style.display = 'block';
-            document.getElementById('wa_g').style.display = 'block';
-            resDiv.innerHTML = `
-                <div class="res-row"><span>Расход:</span><span class="res-val">${(q_ls*3.6).toFixed(2)} м³/ч</span></div>
-                <div class="res-row"><span>Скорость:</span><span class="res-val">${v.toFixed(2)} м/с</span></div>
-                <div class="res-row"><span>Потери напора:</span><span class="res-val">${h_total.toFixed(2)} м.в.ст.</span></div>
-                <div class="res-row"><span>Рекомендуемый насос:</span><span class="res-val">${pump.n}</span></div>
-            `;
-
-            reports.g = ИНЖЕНЕРНЫЙ ОТЧЕТ (ГИДРАВЛИКА)%0A +
-                Мощность: ${pow} кВт, ΔT=${dt}°C%0A +
-                Труба: ${DATA.tubes[type].n} вн. ${d_mm} мм%0A +
-                Расход: ${(q_ls*3.6).toFixed(2)} м³/ч%0A +
-                Скорость: ${v.toFixed(2)} м/с%0A +
-                Потери: ${h_total.toFixed(2)} м.в.ст.%0A +
-                Насос: ${pump.n};
-        };
-
-        // ---------- РАСЧЁТ ТЁПЛОГО ПОЛА ----------
-        window.calcFloor = function() {
-            const area = parseFloat(document.getElementById('f_area').value);
-            const step = parseFloat(document.getElementById('f_step').value);
-            const price = parseFloat(document.getElementById('f_price').value) || 0;
-            
-            if (!area  area <= 0  !step) {
-                alert('Введите корректную площадь');
-                return;
-            }
-
-            const pipeLength = Math.ceil((area / step) * 1.15);
-            const circuits = Math.ceil(pipeLength / 85);
-            const waterVolume = (pipeLength * 0.11).toFixed(1);
-            const cost = price > 0 ? (pipeLength * price).toFixed(0) : '—';
-
-            const resDiv = document.getElementById('res_f');
-            resDiv.style.display = 'block';
-            document.getElementById('wa_f').style.display = 'block';
-            resDiv.innerHTML = `
-                <div class="res-row"><span>Труба:</span><span class="res-val">${pipeLength} м</span></div>
-                <div class="res-row"><span>Контуров (до 85 м):</span><span class="res-val">${circuits}</span></div>
-                <div class="res-row"><span>Объём воды:</span><span class="res-val">${waterVolume} л</span></div>
-<div class="res-row"><span>Стоимость трубы:</span><span class="res-val">${cost} ₽</span></div>
-            `;
-
-            reports.f = РАСЧЕТ ТЕПЛОГО ПОЛА%0A +
-                Площадь: ${area} м², шаг ${step*100} см%0A +
-                Труба: ${pipeLength} м%0A +
-                Контуров: ${circuits}%0A +
-                Объём воды: ${waterVolume} л%0A +
-                Стоимость: ${cost} ₽;
-        };
-
-        // ---------- РАСЧЁТ ТЕПЛОПОТЕРЬ ----------
-        window.calcHeat = function() {
-            const tout = parseFloat(document.getElementById('l_city').value);
-            const s = parseFloat(document.getElementById('l_s').value);
-            
-            if (!s || s <= 0) {
-                alert('Введите площадь дома');
-                return;
-            }
-
-            const power = Math.round((s * 100) * ((22 - tout) / 50));
-            const vol = Math.round(s * 0.8 + 30);
-            const expTank = Math.ceil(vol * 0.12);
-
-            const resDiv = document.getElementById('res_h');
-            resDiv.style.display = 'block';
-            document.getElementById('wa_h').style.display = 'block';
-            resDiv.innerHTML = `
-                <div class="res-row"><span>Мощность котла:</span><span class="res-val">${(power/1000).toFixed(1)} кВт</span></div>
-                <div class="res-row"><span>Объём воды в системе:</span><span class="res-val">${vol} л</span></div>
-                <div class="res-row"><span>Расширительный бак:</span><span class="res-val">${expTank} л</span></div>
-            `;
-
-            reports.h = ТЕПЛОВОЙ РАСЧЕТ ДОМА%0A +
-                Площадь: ${s} м², Tнар=${tout}°C%0A +
-                Мощность котла: ${(power/1000).toFixed(1)} кВт%0A +
-                Объём системы: ${vol} л%0A +
-                Расширительный бак: ${expTank} л;
-        };
-
-        // ---------- ОТПРАВКА В WHATSAPP ----------
-        window.sendWA = function(type) {
-            let msg = '';
-            if (type === 'g') msg = reports.g;
-            else if (type === 'f') msg = reports.f;
-            else if (type === 'h') msg = reports.h;
-            
-            if (!msg) {
-                alert('Сначала выполните расчёт в этой вкладке.');
-                return;
-            }
-            // Кодируем и открываем WhatsApp
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-        };
-
-        // ---------- АВТОСОХРАНЕНИЕ ----------
-        function initAutoSave() {
-            document.querySelectorAll('.save').forEach(el => {
-                // Восстановление из localStorage
-                const saved = localStorage.getItem(el.id);
-                if (saved !== null) {
-                    if (el.tagName === 'SELECT') {
-                        // Для select нужно дождаться заполнения опций
-                        setTimeout(() => { if (el.options.length > 0) el.value = saved; }, 10);
-                    } else {
-                        el.value = saved;
-                    }
-                }
-                // Сохранение при изменении
-                el.addEventListener('change', function() {
-                    localStorage.setItem(this.id, this.value);
-                    document.getElementById('status').innerText = 'Изменения сохранены ' + new Date().toLocaleTimeString();
-                });
-            });
-        }
-
-        // ---------- ИНИЦИАЛИЗАЦИЯ ----------
-        function init() {
-            // Заполнить выбор типа трубы
-            const tSel = document.getElementById('g_type');
-            for (let key in DATA.tubes) {
-                tSel.add(new Option(DATA.tubes[key].n, key));
-            }
-            const savedType = localStorage.getItem('g_type');
-            if (savedType) tSel.value = savedType;
-            
-            // Обновить размеры
-            updateSizes();
-            
-            // Восстановить остальные поля
-            initAutoSave();
-            
-            // Дополнительно применить сохранённый размер после заполнения списка
-            setTimeout(() => {
-                const savedSize = localStorage.
-getItem('g_size');
-                if (savedSize) {
-                    const sizeSel = document.getElementById('g_size');
-                    if ([...sizeSel.options].some(o => o.value === savedSize)) sizeSel.value = savedSize;
-                }
-            }, 20);
-        }
-
-        init();
-    })();
+    document.getElementById('res_floor').innerHTML = html;
+    document.getElementById('res_floor').style.display = 'block';
+}
 </script>
 </body>
 </html>
